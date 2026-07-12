@@ -21,8 +21,11 @@ graph TD;
     %% AUDIO_UPLOAD-->EMBED_AUDIO_INIT{"Audio Embeddings Generated."};
     AUDIO_PREPROCESSING-->STT_MODEL{"Speech to Text processing with timestamps"}
     STT_MODEL==Sentence/Timestamp Dictionary==>EMBED_TEXT{"Text Embeddings Generated."};
-    IMAGE_UPLOAD(["Optional: Upload image assets"])-->EMBED_IMAGE_VIDEO{"Image/Video Embeddings Generated. Generate text embeddings from Image/Video file names and file textual metadata."};
-    VIDEO_UPLOAD(["Optional: Upload video assets"])-->EMBED_IMAGE_VIDEO;
+    
+    IMAGE_UPLOAD(["Optional: Upload image assets"])-->VISUAL_FILE_DATA_EXTRACTION["Extract file name and textual metadata"];
+    VIDEO_UPLOAD(["Optional: Upload video assets"])-->VISUAL_FILE_DATA_EXTRACTION;
+    VISUAL_FILE_DATA_EXTRACTION-->VISUAL_DATA[("Visual Assets Data")];
+    VISUAL_DATA-->EMBED_IMAGE_VIDEO{"Image/Video Embeddings Generated. Generate text embeddings from Image/Video file names and file textual metadata."};
 
     EMBED_TEXT==Sentence/Timestamp/Text Embeds Dictionary==>AUDIO_SIMILARITY["Flag and remove overly similar neighboring sentences. Remove the first sentence as the latter is likely a correction."];
     AUDIO_SIMILARITY-->AUDIO_STOP["Remove STOP words and k sentences before the STOP word for which there is a similar sentence in range STOP_thresh after the STOP word."];
@@ -56,8 +59,8 @@ graph TD;
     
     PARAM1(["Optional: Set custom speech sentence similarity thresholds"])-.->AUDIO_SIMILARITY;
     PARAM2(["Optional: Set STOP words"])-.->AUDIO_STOP;
-    PARAM3(["Optional:Set generate_images==True"])-.->EMBED_IMAGE_VIDEO;
-    PARAM4(["Optional:Set min_visual_change_time or min_visual_change_num_sentences. Minimum time/numberof sentences any visual has to stay on screen. This prevents the visuals from changing too fast. "])-.->EMBED_IMAGE_VIDEO;
+    PARAM3(["Optional:Set generate_images==True"])-.->MOVIE_MAKING;
+    PARAM4(["Optional:Set min_visual_change_time or min_visual_change_num_sentences. Minimum time/numberof sentences any visual has to stay on screen. This prevents the visuals from changing too fast. "])-.->MOVIE_MAKING;
 
 ```
 
