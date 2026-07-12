@@ -14,8 +14,8 @@ graph TD;
     A2(["Optional: Upload images"])-->B2{"Image/Video Embeddings Generated. Generate text embeddings from Image/Video file names and file textual metadata."};
     A3(["Optional: Upload videos"])-->B2;
 
-    B1-->C1["Flag and remove overly similar neighboring sentences. Remove the first sentence as the latter is likely a correction."]
-    C1-->C2["Remove STOP words and k sentences before the STOP word for which there is a similar sentence in range k+10 after the STOP word."]
+    B3-->C1["Flag and remove overly similar neighboring sentences. Remove the first sentence as the latter is likely a correction."];
+    C1-->C2["Remove STOP words and k sentences before the STOP word for which there is a similar sentence in range k+10 after the STOP word."];
     B2-->C1;
     
     PARAM1(["Optional: Adjust Speech Sentence Similarity Thresholds"])-->B1;
@@ -24,6 +24,15 @@ graph TD;
     PARAM4(["Optional:Set min_visual_change_time or min_visual_change_num_sentences. Minimum time/numberof sentences any visual has to stay on screen. This prevents the visuals from changing too fast. "])-->B2;
 
 ```
+
+### Image/Video file metadata embeddings 
+We embed textual metadata and filenames too so users can more easily use novel data in this pipeline. E.g. if they're talking about their dog named snowball they can just name the file after the dog so the pipeline can use the dog image when given only a name. 
+
+Might want to weight these heavier if within a certain similarity distance. Or save additional snippets elsewhere if its sufficiently close to the embedding of a competing image. 
+
+
+### Similarity
+Remove similar sentences within a sentence distance `similarity_sentence_distance = 10` and/or time range `similarity_time_range = 20.0` (default number of seconds as a float)
 
 ### STOP words 
 
