@@ -29,10 +29,10 @@ graph TD;
     
     %% can technically do audio embed matching too here if it solves some issues but textual embeds should be focus for reasons mentioned elsewhere
     
-    AUDIO_POSTPROCESSING-->MP3(("MP3 File))
+    AUDIO_POSTPROCESSING-->MP3(("MP3 File"));
     AUDIO_POSTPROCESSING==Sentence/Embed dict with NEW Timestamps==>EMBED_MATCHING["Match sentence embeds to image/video. Maybe have a matching_threhold to encourage video use if the video is close enough. Create rankings according to Control Params & Rules"];
 
-    MP3-.->AUDIO_ONLY_CASE["IF NO VISUALS were provided we output an mp3 and generate a blank image to make an mp4"]
+    MP3-.->AUDIO_ONLY_CASE["IF NO VISUALS were provided we output an mp3 and generate a blank image to make an mp4"];
 
     MP3-->MOVIE_MAKING;
 
