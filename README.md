@@ -9,12 +9,20 @@ We dont use audio embeddings because this is intended for narration. If I'm narr
 ```mermaid
 graph TD;
     %% mermaid chart docs: https://mermaid.js.org/syntax/flowchart.html
-    AUDIO_UPLOAD(["Upload Speech"])-->AUDIO_PREPROCESSING{"Audio Preprocessing: remove long silences, normalize loudness if needed. May run Background noise removal (models fairly light like as low as 8mb) maybe include a bool for this as an option in case gives errors."};
+    AUDIO_UPLOAD(["Upload Speech"])-->USER_DATA[("User Assets")]
+    
+    %% doesn't need to be a facecam video, just a common example
+    FACECAM_UPLOAD(["Optional: Upload Speech with video/facecam"])-->FACECAM_DATA[("Facecam File")]
+    FACECAM_DATA-->FACECAM_SPLIT["Split audio from video"]
+    FACECAM_SPLIT--Facecam MP3-->USER_DATA
+    FACECAM_SPLIT--Facecam MP4-->USER_DATA
+
+    USER_DATA-->AUDIO_PREPROCESSING{"Audio Preprocessing: remove long silences, normalize loudness if needed. May run Background noise removal (models fairly light like as low as 8mb) maybe include a bool for this as an option in case gives errors."};
     %% AUDIO_UPLOAD-->EMBED_AUDIO_INIT{"Audio Embeddings Generated."};
     AUDIO_PREPROCESSING-->STT_MODEL{"Speech to Text processing with timestamps"}
     STT_MODEL==Sentence/Timestamp Dictionary==>EMBED_TEXT{"Text Embeddings Generated."};
-    IMAGE_UPLOAD(["Optional: Upload images"])-->EMBED_IMAGE_VIDEO{"Image/Video Embeddings Generated. Generate text embeddings from Image/Video file names and file textual metadata."};
-    VIDEO_UPLOAD(["Optional: Upload videos"])-->EMBED_IMAGE_VIDEO;
+    IMAGE_UPLOAD(["Optional: Upload image assets"])-->EMBED_IMAGE_VIDEO{"Image/Video Embeddings Generated. Generate text embeddings from Image/Video file names and file textual metadata."};
+    VIDEO_UPLOAD(["Optional: Upload video assets"])-->EMBED_IMAGE_VIDEO;
 
     EMBED_TEXT==Sentence/Timestamp/Text Embeds Dictionary==>AUDIO_SIMILARITY["Flag and remove overly similar neighboring sentences. Remove the first sentence as the latter is likely a correction."];
     AUDIO_SIMILARITY-->AUDIO_STOP["Remove STOP words and k sentences before the STOP word for which there is a similar sentence in range STOP_thresh after the STOP word."];
