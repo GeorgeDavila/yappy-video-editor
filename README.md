@@ -8,10 +8,11 @@ We dont use audio embeddings because this is intended for narration. If I'm narr
 
 ```mermaid
 graph TD;
+    %% mermaid chart docs: https://mermaid.js.org/syntax/flowchart.html
     AUDIO_UPLOAD(["Upload Speech"])-->AUDIO_PREPROCESSING{"Audio Preprocessing: remove long silences, normalize loudness if needed. May run Background noise removal (models fairly light like as low as 8mb) maybe include a bool for this as an option in case gives errors."};
     %% AUDIO_UPLOAD-->EMBED_AUDIO{"Audio Embeddings Generated."};
     AUDIO_PREPROCESSING-->STT_MODEL{"Speech to Text processing with timestamps"}
-    STT_MODEL-->EMBED_TEXT{"Text Embeddings Generated."};
+    STT_MODEL==Sentence/Timestamp Dictionary==>EMBED_TEXT{"Text Embeddings Generated."};
     IMAGE_UPLOAD(["Optional: Upload images"])-->EMBED_IMAGE_VIDEO{"Image/Video Embeddings Generated. Generate text embeddings from Image/Video file names and file textual metadata."};
     VIDEO_UPLOAD(["Optional: Upload videos"])-->EMBED_IMAGE_VIDEO;
 
