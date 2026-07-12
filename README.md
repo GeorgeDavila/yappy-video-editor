@@ -49,7 +49,7 @@ graph TD;
     MP4-.if only visual is facecam.->DONE;
 
     MP3-->MOVIE_MAKING;
-    MP4-put facecam in corner->MOVIE_MAKING
+    MP4--put facecam in corner-->MOVIE_MAKING
 
     AUDIO_ONLY_CASE-.->DONE
 
