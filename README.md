@@ -10,7 +10,7 @@ We dont use audio embeddings because this is intended for narration. If I'm narr
 graph TD;
     A1(["Upload Speech"])-->B0{"Audio Preprocessing: remove long silences, normalize loudness if needed."};
     B0-->B1{"Speech to Text processing with timestamps"}
-    B1-->B3{"Text Embeddings Generated.};
+    B1-->B3{"Text Embeddings Generated."};
     A2(["Optional: Upload images"])-->B2{"Image/Video Embeddings Generated. Generate text embeddings from Image/Video file names and file textual metadata."};
     A3(["Optional: Upload videos"])-->B2;
 
