@@ -4,7 +4,7 @@ Processing pipeline for turning input speech into full video
 
 ```mermaid
 graph TD;
-    A-->B;
+    A(["Upload Speech"])-->B;
     A-->C;
     B-->D;
     C-->D;
