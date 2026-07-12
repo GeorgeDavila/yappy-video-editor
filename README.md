@@ -9,9 +9,9 @@ We dont use audio embeddings because this is intended for narration. If I'm narr
 ```mermaid
 graph TD;
     A1(["Upload Speech"])-->B0{"Audio Preprocessing: remove long silences, normalize loudness if needed."};
-    B0-->B1{"Speech to Text processing with timestamps"}
+    B0-->B1{"Speech to Text processing with timestamps"};
     B1-->B2{"Text/Image/Video Embeddings generated."};
-    B2-->B3{Also generate text embeddings from file names and file textual metadata."}
+    B2-->B3{"Also generate text embeddings from file names and file textual metadata."};
     A2(["Optional: Upload images"])-->B2;
     A3(["Optional: Upload videos"])-->B2;
 
