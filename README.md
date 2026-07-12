@@ -7,7 +7,11 @@ We'll use 2 singular embedding models here to embed text/images/video into just 
 
 ```mermaid
 graph TD;
-    A1(["Upload Speech"])-->B1{"Set Speech Similarity Thresholds"};
-    A2(["Optional: Upload video/images files"])-->B2{"Image/Video Embeddings generated"}
-    A3(["Optional: Set Speech Sentence Similarity Thresholds"])-->B1;
+    A1(["Upload Speech"])-->B1{"Speech to Text processing with timestamps"};
+    A1OPT1(["Optional: Adjust Speech Sentence Similarity Thresholds"])-->B1;
+    A1OPT2(["Optional: Set STOP words"])-->B1;
+    B1-->B2{"Embeddings generated"}
+    A2(["Optional: Upload images"])-->B2
+    A2(["Optional: Upload images"])-->B2
+    
 ```
