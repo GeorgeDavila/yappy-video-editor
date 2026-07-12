@@ -24,13 +24,13 @@ graph TD;
     AUDIO_CLIPPING-->EMBED_AUDIO{"Audio Embeddings Generated for each sentence clipping."};
     EMBED_AUDIO-->AUDIO_ANALYSIS["Analyze audio embeddings for potential audio distortions, static, background noise, etc. Remove intolerable clips."]
 
-    AUDIO_ANALYSIS-->AUDIO_POSTPROCESSING["Recombine audio clips into a single audio file, normalize audio."]
+    AUDIO_ANALYSIS-->AUDIO_POSTPROCESSING["Recombine audio clips into a single audio file, normalize audio. Transform timestamps to fit their new"]
     EMBED_IMAGE_VIDEO-->AUDIO_SIMILARITY;
     
-    PARAM1(["Optional: Adjust Speech Sentence Similarity Thresholds"])-->STT_MODEL;
-    PARAM2(["Optional: Set STOP words"])-->STT_MODEL;
-    PARAM3(["Optional:Set generate_images==True"])-->EMBED_IMAGE_VIDEO;
-    PARAM4(["Optional:Set min_visual_change_time or min_visual_change_num_sentences. Minimum time/numberof sentences any visual has to stay on screen. This prevents the visuals from changing too fast. "])-->EMBED_IMAGE_VIDEO;
+    PARAM1(["Optional: Set custom speech sentence similarity thresholds"])-.->AUDIO_SIMILARITY;
+    PARAM2(["Optional: Set STOP words"])-.->AUDIO_STOP;
+    PARAM3(["Optional:Set generate_images==True"])-.->EMBED_IMAGE_VIDEO;
+    PARAM4(["Optional:Set min_visual_change_time or min_visual_change_num_sentences. Minimum time/numberof sentences any visual has to stay on screen. This prevents the visuals from changing too fast. "])-.->EMBED_IMAGE_VIDEO;
 
 ```
 
