@@ -10,23 +10,30 @@ We dont use audio embeddings because this is intended for narration. If I'm narr
 graph TD;
     %% mermaid chart docs: https://mermaid.js.org/syntax/flowchart.html
     AUDIO_UPLOAD(["Upload Speech"])-->AUDIO_PREPROCESSING{"Audio Preprocessing: remove long silences, normalize loudness if needed. May run Background noise removal (models fairly light like as low as 8mb) maybe include a bool for this as an option in case gives errors."};
-    %% AUDIO_UPLOAD-->EMBED_AUDIO{"Audio Embeddings Generated."};
+    %% AUDIO_UPLOAD-->EMBED_AUDIO_INIT{"Audio Embeddings Generated."};
     AUDIO_PREPROCESSING-->STT_MODEL{"Speech to Text processing with timestamps"}
     STT_MODEL==Sentence/Timestamp Dictionary==>EMBED_TEXT{"Text Embeddings Generated."};
     IMAGE_UPLOAD(["Optional: Upload images"])-->EMBED_IMAGE_VIDEO{"Image/Video Embeddings Generated. Generate text embeddings from Image/Video file names and file textual metadata."};
     VIDEO_UPLOAD(["Optional: Upload videos"])-->EMBED_IMAGE_VIDEO;
 
-    EMBED_TEXT-->AUDIO_SIMILARITY["Flag and remove overly similar neighboring sentences. Remove the first sentence as the latter is likely a correction."];
+    EMBED_TEXT==Sentence/Timestamp/Text Embeds Dictionary==>AUDIO_SIMILARITY["Flag and remove overly similar neighboring sentences. Remove the first sentence as the latter is likely a correction."];
     AUDIO_SIMILARITY-->AUDIO_STOP["Remove STOP words and k sentences before the STOP word for which there is a similar sentence in range STOP_thresh after the STOP word."];
 
     %% AUDIO_STOP-->AUDIO_AGENT["Now that we have our core audio we can inject prompts into the pipeline to remove unwanted topics or whatever"];
     
     AUDIO_STOP-->AUDIO_CLIPPING["Use the timestamps to create a separate audio clip for each selected sentence"];
     AUDIO_CLIPPING-->EMBED_AUDIO{"Audio Embeddings Generated for each sentence clipping."};
-    EMBED_AUDIO-->AUDIO_ANALYSIS["Analyze audio embeddings for potential audio distortions, static, background noise, etc. Remove intolerable clips."]
+    EMBED_AUDIO==Sentence/Timestamp/Text Embeds/Audio Embeds Dictionary==>AUDIO_ANALYSIS["Analyze audio embeddings for potential audio distortions, static, background noise, etc. Remove intolerable clips."]
 
     AUDIO_ANALYSIS-->AUDIO_POSTPROCESSING["Recombine audio clips into a single audio file, normalize audio. Transform timestamps to fit their new"]
-    EMBED_IMAGE_VIDEO-->AUDIO_SIMILARITY;
+    
+    %% can technically do audio embed matching too here if it solves some issues but textual embeds should be focus for reasons mentioned elsewhere
+    
+    AUDIO_POSTPROCESSING==Sentence/Embed dict with NEW Timestamps==>EMBED_MATCHING["Match sentence embeds to image/video. Maybe have a matching_threhold to encourage video use if the video is close enough. Create rankings according to Control Params & Rules"];
+
+    EMBED_IMAGE_VIDEO==Visual Embeds/Video Length/ File data textual embeds Dictionary==>EMBED_MATCHING;
+
+    EMBED_MATCHING-->MOVIE_MAKING["Combine the audio and visuals according to embed rankings and Control Params & Rules"]
     
     PARAM1(["Optional: Set custom speech sentence similarity thresholds"])-.->AUDIO_SIMILARITY;
     PARAM2(["Optional: Set STOP words"])-.->AUDIO_STOP;
@@ -34,6 +41,8 @@ graph TD;
     PARAM4(["Optional:Set min_visual_change_time or min_visual_change_num_sentences. Minimum time/numberof sentences any visual has to stay on screen. This prevents the visuals from changing too fast. "])-.->EMBED_IMAGE_VIDEO;
 
 ```
+
+Write to some xml standard if we can. If no standard is wide enough just output the vid and clips. 
 
 ### Background Noise removal models
 
@@ -56,3 +65,16 @@ Remove similar sentences within a sentence distance `similarity_sentence_distanc
 Remove STOP words and k sentences before the STOP word for which there is a similar sentence in range `STOP_thresh` after the STOP word. We can assume that if a similar sentence is retreaded in ~ 1 paragraph after the STOP word then that new sentence is intended to replace the original. 
 
 `STOP_thresh= 10` will be the default, adjust as needed. 
+
+### Control Params & Rules
+`matching_threhold` - if a video embed is close enough to a higher ranking image embed use this to give preference to videos. Set to 0 to just have the top embed win even if its an image
+
+`limit_uses_to_once=True` limits the usage of each visual item to 1 appearance
+
+`min_visual_change_num_sentences` minimum number of sentences a visual must remain on screen. If `loop_videos=false` videos should still end if theyre shorter than this time
+
+`min_visual_change_time` minimum time a visual must remain on screen. If `loop_videos=false` videos should still end if theyre shorter than this time
+
+`cut_videos=False` Set to true to cutoff videos if a higher ranking embed starts. `min_visual_change_num_sentences` and `min_visual_change_time` will apply before this. 
+
+`loop_videos=false` set to true to make videos loop to fill out the interval alotted. If false itll just move on to the next visual 
