@@ -9,17 +9,17 @@ We dont use audio embeddings because this is intended for narration. If I'm narr
 ```mermaid
 graph TD;
     A1(["Upload Speech"])-->B0{"Audio Preprocessing: remove long silences, normalize loudness if needed."};
-    B0-->B1{"Speech to Text processing with timestamps"}
-    B1-->B3{"Text Embeddings Generated."};
+    B0-->STT_MODEL{"Speech to Text processing with timestamps"}
+    STT_MODEL-->B3{"Text Embeddings Generated."};
     A2(["Optional: Upload images"])-->B2{"Image/Video Embeddings Generated. Generate text embeddings from Image/Video file names and file textual metadata."};
     A3(["Optional: Upload videos"])-->B2;
 
     B3-->C1["Flag and remove overly similar neighboring sentences. Remove the first sentence as the latter is likely a correction."];
-    C1-->C2["Remove STOP words and k sentences before the STOP word for which there is a similar sentence in range k+10 after the STOP word."];
+    C1-->C2["Remove STOP words and k sentences before the STOP word for which there is a similar sentence in range STOP_thresh after the STOP word."];
     B2-->C1;
     
-    PARAM1(["Optional: Adjust Speech Sentence Similarity Thresholds"])-->B1;
-    PARAM2(["Optional: Set STOP words"])-->B1;
+    PARAM1(["Optional: Adjust Speech Sentence Similarity Thresholds"])-->STT_MODEL;
+    PARAM2(["Optional: Set STOP words"])-->STT_MODEL;
     PARAM3(["Optional:Set generate_images==True"])-->B2;
     PARAM4(["Optional:Set min_visual_change_time or min_visual_change_num_sentences. Minimum time/numberof sentences any visual has to stay on screen. This prevents the visuals from changing too fast. "])-->B2;
 
