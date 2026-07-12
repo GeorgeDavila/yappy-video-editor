@@ -9,11 +9,13 @@ We dont use audio embeddings because this is intended for narration. If I'm narr
 ```mermaid
 graph TD;
     A1(["Upload Speech"])-->B1{"Speech to Text processing with timestamps"};
-    A1OPT1(["Optional: Adjust Speech Sentence Similarity Thresholds"])-->B1;
-    A1OPT2(["Optional: Set STOP words"])-->B1;
     B1-->B2{"Text/Image/Video Embeddings generated"};
     A2(["Optional: Upload images"])-->B2;
     A3(["Optional: Upload videos"])-->B2;
-    A4(["Optional:Set generate_images==True"])-->B2;
-    A4(["Optional:Set min_visual_change_time or min_visual_change_num_sentences. Minimum time/numberof sentences any visual has to stay on screen. This prevents the visuals from changing too fast. "])-->B2;
+    
+    PARAM1(["Optional: Adjust Speech Sentence Similarity Thresholds"])-->B1;
+    PARAM2(["Optional: Set STOP words"])-->B1;
+    PARAM3(["Optional:Set generate_images==True"])-->B2;
+    PARAM4(["Optional:Set min_visual_change_time or min_visual_change_num_sentences. Minimum time/numberof sentences any visual has to stay on screen. This prevents the visuals from changing too fast. "])-->B2;
+
 ```
