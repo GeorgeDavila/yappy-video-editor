@@ -9,15 +9,15 @@ We dont use audio embeddings because this is intended for narration. If I'm narr
 ```mermaid
 graph TD;
     %% mermaid chart docs: https://mermaid.js.org/syntax/flowchart.html
-    AUDIO_UPLOAD(["Upload Speech"])-->USER_DATA[("User Assets")]
+    AUDIO_UPLOAD(["Upload Speech"])-->SPEECH_DATA[("User Speech MP3")]
     
     %% doesn't need to be a facecam video, just a common example
-    FACECAM_UPLOAD(["Optional: Upload Speech with video/facecam"])-->FACECAM_DATA[("Facecam File")]
-    FACECAM_DATA-->FACECAM_SPLIT["Split audio from video"]
-    FACECAM_SPLIT--Facecam MP3-->USER_DATA
-    FACECAM_SPLIT--Facecam MP4-->USER_DATA
+    FACECAM_UPLOAD(["Optional: Upload Speech with video/facecam"])-->FACECAM_DATA["Facecam File"]
+    FACECAM_DATA-->FACECAM_SPLIT["Split audio from video, keep time aligned"]
+    FACECAM_SPLIT--Speech MP3-->SPEECH_DATA
+    FACECAM_SPLIT--Visual only MP4-->FACECAM_VISUAL_DATA[("Facecam MP4")]
 
-    USER_DATA-->AUDIO_PREPROCESSING{"Audio Preprocessing: remove long silences, normalize loudness if needed. May run Background noise removal (models fairly light like as low as 8mb) maybe include a bool for this as an option in case gives errors."};
+    SPEECH_DATA-->AUDIO_PREPROCESSING{"Audio Preprocessing: remove long silences, normalize loudness if needed. May run Background noise removal (models fairly light like as low as 8mb) maybe include a bool for this as an option in case gives errors."};
     %% AUDIO_UPLOAD-->EMBED_AUDIO_INIT{"Audio Embeddings Generated."};
     AUDIO_PREPROCESSING-->STT_MODEL{"Speech to Text processing with timestamps"}
     STT_MODEL==Sentence/Timestamp Dictionary==>EMBED_TEXT{"Text Embeddings Generated."};
@@ -33,11 +33,13 @@ graph TD;
     AUDIO_CLIPPING-->EMBED_AUDIO{"Audio Embeddings Generated for each sentence clipping."};
     EMBED_AUDIO==Sentence/Timestamp/Text Embeds/Audio Embeds Dictionary==>AUDIO_ANALYSIS["Analyze audio embeddings for potential audio distortions, static, background noise, etc. Remove intolerable clips."]
 
-    AUDIO_ANALYSIS-->AUDIO_POSTPROCESSING["Recombine audio clips into a single audio file, normalize audio. Transform timestamps to fit their new"]
+    AUDIO_ANALYSIS-->AUDIO_POSTPROCESSING["Recombine audio clips into a single audio file, normalize audio. Recombine these with the initial facecam video, if one was included. After reconstruction is done, transform timestamps to fit their new places."];
+    FACECAM_VISUAL_DATA-->AUDIO_POSTPROCESSING
     
     %% can technically do audio embed matching too here if it solves some issues but textual embeds should be focus for reasons mentioned elsewhere
     
-    AUDIO_POSTPROCESSING-->MP3(("MP3 File"));
+    AUDIO_POSTPROCESSING-->MP3[("MP3 File")];
+    AUDIO_POSTPROCESSING-->MP4[("MP4 File - Audio Processed Facecam File")];
     AUDIO_POSTPROCESSING==Sentence/Embed dict with NEW Timestamps==>EMBED_MATCHING["Match sentence embeds to image/video. Maybe have a matching_threhold to encourage video use if the video is close enough. Create rankings according to Control Params & Rules"];
 
     MP3-.->AUDIO_ONLY_CASE["IF NO VISUALS were provided we output an mp3 and generate a blank image to make an mp4"];
