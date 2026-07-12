@@ -12,6 +12,9 @@ graph TD;
     B1-->B2{"Text/Image/Video Embeddings generated"};
     A2(["Optional: Upload images"])-->B2;
     A3(["Optional: Upload videos"])-->B2;
+
+    B1-->C1["Flag and remove overly similar neighboring sentences. Remove the first sentence as the latter is likely a correction."]
+    B2-->C1;
     
     PARAM1(["Optional: Adjust Speech Sentence Similarity Thresholds"])-->B1;
     PARAM2(["Optional: Set STOP words"])-->B1;
