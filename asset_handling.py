@@ -85,12 +85,66 @@ class FileDataProcessor:
             "text_metadata": text_tags,
             "file_type": "video"
         }
-        # --- EXAMPLE USAGE ---
-        # video_meta = extract_video_metadata("my_movie.mp4")
-        # image_meta = extract_image_metadata("holiday_photo.jpg")
-        # print(video_meta)
-        # print(image_meta)
-        
+
+    def extract_audio_metadata(self):
+        text_tags = {}
+        if not os.path.exists(self.file_path):
+            return {"error": "File not found"}
+        ext = os.path.splitext(self.file_path).lower()
+        audio_extensions = {'.mp3', '.wav', '.ogg', '.m4a', '.flac', '.aac', '.wma', '.m4b'}
+        if ext in audio_extensions:
+            try:
+                audio_file = MutagenFile(self.file_path)
+                if audio_file is not None:
+                    # Mutagen extracts tags as a key-value dictionary
+                    for tag, value in audio_file.items():
+                        # Standardize value presentation (remove list wrappers if single element)
+                        clean_value = value[0] if isinstance(value, list) and len(value) == 1 else value
+                        
+                        # Ignore purely binary objects (like embedded cover art)
+                        if isinstance(clean_value, (str, int, float)):
+                            text_tags[tag] = clean_value
+                        elif isinstance(clean_value, bytes):
+                            try:
+                                text_tags[tag] = clean_value.decode('utf-8', errors='ignore').strip()
+                            except Exception:
+                                pass # Skip non-textual binary chunks
+            except Exception as e:
+                return {"error": f"Could not parse audio metadata: {str(e)}"}
+        else:
+            return {"error": "File is not a recognized video format"}
+        return {
+            "file_name": os.path.basename(self.file_path),
+            "text_metadata": text_tags,
+            "file_type": "audio"
+        }    
+    
+    def get_media_asset_type(self):
+        ext = os.path.splitext(self.file_path).lower()
+        image_extensions = {'.jpg', '.jpeg', '.png', '.webp', '.tiff'}
+        video_extensions = {'.mp4', '.mov', '.avi', '.mkv', '.flv', '.wmv', '.webm'}
+        audio_extensions = {'.mp3', '.wav', '.ogg', '.m4a', '.flac', '.aac', '.wma', '.m4b'}
+        if ext in image_extensions:
+            return "image"
+        elif ext in video_extensions:
+            return "video"
+        elif ext in audio_extensions:
+            return "audio"
+        else:
+            return None
+    
+    def get_media_asset_metadata(self):
+        if self.get_media_asset_type() == "image":
+            data = FileDataProcessor(self.file_path).extract_image_metadata()
+            return data
+        elif self.get_media_asset_type() == "video":
+            data = FileDataProcessor(self.file_path).extract_video_metadata()
+            return data
+        elif self.get_media_asset_type() == "audio":
+            data = FileDataProcessor(self.file_path).extract_audio_metadata()
+            return data
+        else:
+            return None
 class DataManager:
     def __init__(self, user_assets_directory, image_assets_directory, audio_assets_directory, video_assets_directory):
         self.user_assets_directory = user_assets_directory
@@ -102,17 +156,48 @@ class DataManager:
     # Focus is on keeping assets in standard file system, and not in a database.
     # Use sqlite only in background processes.
 
-    # Store Paths, Not Files
-    def save_all_assets_to_sqlite(self):
+    def create_assets_table_in_sqlite(self):
         conn = sqlite3.connect(self.user_assets_directory)
         cursor = conn.cursor()
-        cursor.execute("CREATE TABLE IF NOT EXISTS assets (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, path TEXT)")
-        cursor.execute("INSERT INTO assets (name, path) VALUES (?, ?)", ("user_assets", self.user_assets_directory))
-        cursor.execute("INSERT INTO assets (name, path) VALUES (?, ?)", ("image_assets", self.image_assets_directory))
-        cursor.execute("INSERT INTO assets (name, path) VALUES (?, ?)", ("audio_assets", self.audio_assets_directory))
-        cursor.execute("INSERT INTO assets (name, path) VALUES (?, ?)", ("video_assets", self.video_assets_directory))
+        # asset_class is one of: user_assets, image_assets, audio_assets, video_assets
+        cursor.execute("CREATE TABLE IF NOT EXISTS assets (id INTEGER PRIMARY KEY AUTOINCREMENT, asset_class ENUM('user_assets', 'image_assets', 'audio_assets', 'video_assets') NOT NULL, name TEXT, path TEXT, file_name TEXT, file_type TEXT, text_metadata TEXT)")
         conn.commit()
         conn.close()
+        return True
+    
+    # Store Paths, Not Files
+    def save_asset_to_sqlite(self, asset_name, asset_path):
+        conn = sqlite3.connect(self.user_assets_directory)
+        cursor = conn.cursor()
+        asset_type = FileDataProcessor(asset_path).get_media_asset_type()
+        if asset_type is None:
+            # Log error
+            print(f"Could not get media asset type: {asset_path}")
+            return False
+        if not os.path.exists(asset_path):
+            # Log error
+            print(f"File not found: {asset_path}")
+            return False
+        asset_metadata = FileDataProcessor(asset_path).get_media_asset_metadata()
+        if asset_metadata is None:
+            # Log error
+            print(f"Could not get media asset metadata: {asset_path}")
+            return False
+        
+        asset_path = os.path.abspath(asset_path)
+        asset_file_name = asset_metadata["file_name"]
+        asset_file_type = asset_metadata["file_type"]
+        asset_text_metadata = asset_metadata["text_metadata"]
+        cursor.execute("INSERT INTO assets (asset_type, name, path, file_name, file_type, text_metadata) VALUES (?, ?, ?, ?, ?, ?)", (asset_type, asset_name, asset_path, asset_file_name, asset_file_type, asset_text_metadata))
+        conn.commit()
+        conn.close()
+        return True
+    
+    def save_all_assets_to_sqlite(self):
+        self.save_asset_to_sqlite("user_assets", self.user_assets_directory, "user_assets", "directory", "")
+        self.save_asset_to_sqlite("image_assets", self.image_assets_directory, "image_assets", "directory", "")
+        self.save_asset_to_sqlite("audio_assets", self.audio_assets_directory, "audio_assets", "directory", "")
+        self.save_asset_to_sqlite("video_assets", self.video_assets_directory, "video_assets", "directory", "")
         return True
 
     def load_asset_from_sqlite(self, asset_name):
