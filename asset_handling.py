@@ -1,3 +1,8 @@
+import os
+from PIL import Image
+from PIL.ExifTags import TAGS
+from mutagen import File as MutagenFile
+
 from moviepy import *
 import sqlite3
 
@@ -6,6 +11,86 @@ audio_upload_path = "audio.mp3"
 facecam_output_path = "facecam_output.mp4"
 audio_output_path = "audio_output.mp3"
 
+class FileDataProcessor:
+    def __init__(self, file_path):
+        self.file_path = file_path
+    
+    def extract_image_metadata(self):
+        if not os.path.exists(self.file_path):
+            return {"error": "File not found"}
+            
+        ext = os.path.splitext(self.file_path).lower()
+        image_extensions = {'.jpg', '.jpeg', '.png', '.webp', '.tiff'}
+        
+        text_tags = {}
+
+        # --- IMAGE TEXT METADATA ---
+        if ext in image_extensions:
+            with Image.open(self.file_path) as img:
+                # 1. Standard EXIF Text Tags (Camera, Copyright, Author)
+                exif_data = img.getexif()
+                if exif_data:
+                    for tag_id, value in exif_data.items():
+                        tag_name = TAGS.get(tag_id, tag_id)
+                        # Look specifically for common text/string fields
+                        text_fields = {'ImageDescription', 'Copyright', 'Artist', 'Software', 'DateTime', 'UserComment'}
+                        if tag_name in text_fields and isinstance(value, (str, bytes)):
+                            if isinstance(value, bytes):
+                                value = value.decode(errors='replace').strip()
+                            text_tags[tag_name] = value
+                
+                # 2. Format-specific PNG/WebP Text chunks
+                if hasattr(img, "info"):
+                    for key, value in img.info.items():
+                        # Skip binary chunks, keep strings
+                        if isinstance(value, str) and key not in ['exif', 'icc_profile']:
+                            text_tags[f"info_{key}"] = value
+        else:
+            return {"error": "File is not a recognized image format"}
+        return {
+            "file_name": os.path.basename(self.file_path),
+            "text_metadata": text_tags,
+            "file_type": "image"
+        }
+
+    def extract_video_metadata(self):
+        text_tags = {}
+        if not os.path.exists(self.file_path):
+            return {"error": "File not found"}
+        ext = os.path.splitext(self.file_path).lower()
+        video_extensions = {'.mp4', '.mov', '.avi', '.mkv', '.flv', '.wmv', '.webm'}
+        if ext in video_extensions:
+            try:
+                video_file = MutagenFile(self.file_path)
+                if video_file is not None:
+                    # Mutagen extracts tags as a key-value dictionary
+                    for tag, value in video_file.items():
+                        # Standardize value presentation (remove list wrappers if single element)
+                        clean_value = value[0] if isinstance(value, list) and len(value) == 1 else value
+                        
+                        # Ignore purely binary objects (like embedded cover art)
+                        if isinstance(clean_value, (str, int, float)):
+                            text_tags[tag] = clean_value
+                        elif isinstance(clean_value, bytes):
+                            try:
+                                text_tags[tag] = clean_value.decode('utf-8', errors='ignore').strip()
+                            except Exception:
+                                pass # Skip non-textual binary chunks
+            except Exception as e:
+                return {"error": f"Could not parse video metadata: {str(e)}"}
+        else:
+            return {"error": "File is not a recognized video format"}
+        return {
+            "file_name": os.path.basename(self.file_path),
+            "text_metadata": text_tags,
+            "file_type": "video"
+        }
+        # --- EXAMPLE USAGE ---
+        # video_meta = extract_video_metadata("my_movie.mp4")
+        # image_meta = extract_image_metadata("holiday_photo.jpg")
+        # print(video_meta)
+        # print(image_meta)
+        
 class DataManager:
     def __init__(self, user_assets_directory, image_assets_directory, audio_assets_directory, video_assets_directory):
         self.user_assets_directory = user_assets_directory
