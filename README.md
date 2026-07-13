@@ -1,4 +1,4 @@
-# peyote-speech2video
+# Automatic Speech2Video video editing pipeline
 
 Processing pipeline for turning input speech into full video. Can't capture every nuance of video editing but we'll try to get a majority of the busy work done.
 
@@ -45,19 +45,17 @@ graph TD;
     AUDIO_POSTPROCESSING-->MP4[("Post MP4 File")];
     AUDIO_POSTPROCESSING==Sentence/Embed dict with NEW Timestamps==>EMBED_MATCHING["Match sentence embeds to image/video. Maybe have a matching_threhold to encourage video use if the video is close enough. Create rankings according to Control Params & Rules"];
 
-    MP3-.->AUDIO_ONLY_CASE["IF NO VISUALS were provided we output an mp3 and generate a blank image to make an mp4"];
+    MP3-.IF NO VISUALS were provided generate a blank image to make an mp4.->DONE;
     MP4-.if only visual is facecam.->DONE;
 
     MP3-->MOVIE_MAKING;
     MP4--put facecam in corner-->MOVIE_MAKING
 
-    AUDIO_ONLY_CASE-.->DONE
-
     EMBED_IMAGE_VIDEO==Visual filenames/Visual Embeds/Video Length/ File data textual embeds Dictionary==>EMBED_MATCHING;
 
     EMBED_MATCHING-->MOVIE_MAKING["Combine the audio and visuals according to embed rankings and Control Params & Rules"];
 
-    MOVIE_MAKING-->DONE(["DONE!"]);
+    MOVIE_MAKING-->DONE(("DONE!"));
     
     PARAM1(["Optional: Set custom speech sentence similarity thresholds"])-.->AUDIO_SIMILARITY;
     PARAM2(["Optional: Set STOP words"])-.->AUDIO_STOP;
@@ -91,6 +89,8 @@ Remove STOP words and k sentences before the STOP word for which there is a simi
 `STOP_thresh= 10` will be the default, adjust as needed. 
 
 ### Control Params & Rules
+`min_relevance` parameter to control how relevant a video/image needs to be before its shown. Only used when user provides and inital video. E.g. if a facecam is provided and we set a min_relevance then we'll only show the face cam unless the relevance threshold is met. 
+
 `matching_threhold` - if a video embed is close enough to a higher ranking image embed use this to give preference to videos. Set to 0 to just have the top embed win even if its an image
 
 `limit_uses_to_once=True` limits the usage of each visual item to 1 appearance
