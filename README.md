@@ -62,7 +62,8 @@ graph TD;
     PARAM3(["Optional:Set generate_images==True"])-.->MOVIE_MAKING;
     PARAM4(["Optional:Set min_visual_change_time or min_visual_change_num_sentences. Minimum time/numberof sentences any visual has to stay on screen. This prevents the visuals from changing too fast. "])-.->MOVIE_MAKING;
 
-    style FACECAM_UPLOAD color:red;
+    style FACECAM_UPLOAD stroke:red;
+    style AUDIO_POSTPROCESSING stroke:blue;
 
 ```
 
