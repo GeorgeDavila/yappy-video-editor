@@ -69,6 +69,8 @@ graph TD;
 
 Write to some xml standard if we can. If no standard is wide enough just output the vid and clips. 
 
+Write to json. E.g. {{'time', 'image', 'effect' .....}, {'time', 'audio', .....}}. From here we can write scripts to change to markdown language for other video editors or easy translation to straightup code for other preogrammatic editors. Keep audio/video/image assets in separate eleements even if they share exact same times - this allows easier portability to other editors and easier editing. 
+
 ### Background Noise removal models
 
 https://huggingface.co/mlx-community/DeepFilterNet-mlx
