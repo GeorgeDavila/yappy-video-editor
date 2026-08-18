@@ -10,7 +10,7 @@ import json
 
 nltk.download('punkt', quiet=True)
 
-def transcribe_with_timestamps(audio_path: str, model_size="base", device="cpu"):
+def transcribe_with_timestamps(audio_path: str, model_size: str = "base", device: str = "cpu") -> tuple[list[dict], float]:
     """Transcribe and return segments with timestamps."""
     model = WhisperModel(model_size, device=device, compute_type="int8" if device == "cpu" else "float16")
     segments, info = model.transcribe(
@@ -22,7 +22,7 @@ def transcribe_with_timestamps(audio_path: str, model_size="base", device="cpu")
     print(f"Detected language: {info.language} (prob: {info.language_probability:.2f})")
     return list(segments), info.duration  # segments have .start, .end, .text, .words
 
-def sentences_with_timestamps(segments) -> list[dict]:
+def sentences_with_timestamps(segments: list[dict]) -> list[dict[str, float | str]]:
     """Group into sentences while preserving approximate time ranges."""
     sentences = []
     current_text = []
@@ -59,7 +59,7 @@ def sentences_with_timestamps(segments) -> list[dict]:
             })
     return sentences
 
-def transcribed_sentences_to_json(transcribed_sentences: list[dict]) -> list[dict]:
+def transcribed_sentences_to_json(transcribed_sentences: list[dict[str, float | str]]) -> list[dict[str, float | str]]:
     """Convert transcribed sentences to JSON-serializable dicts."""
     return [
         {
@@ -69,11 +69,11 @@ def transcribed_sentences_to_json(transcribed_sentences: list[dict]) -> list[dic
         for s in transcribed_sentences
     ]
 
-def get_embeddings(texts, model_name="all-MiniLM-L6-v2"):
+def get_embeddings(texts: list[str], model_name: str = "all-MiniLM-L6-v2") -> np.ndarray:
     model = SentenceTransformer(model_name)
     return model.encode(texts, batch_size=32, show_progress_bar=True)
 
-def deduplicate_with_times(sentences, threshold=0.88, remove_similar_sentences=False):
+def deduplicate_with_times(sentences: list[dict[str, float | str]], threshold: float = 0.88, remove_similar_sentences: bool = False) -> list[dict[str, float | str]]:
     """Remove similar sentences, keep timestamps of retained ones."""
     if not sentences:
         return []
@@ -110,7 +110,7 @@ def deduplicate_with_times(sentences, threshold=0.88, remove_similar_sentences=F
     print(f"Kept {len(to_keep)} / {len(sentences)} unique segments")
     return to_keep
 
-def create_cleaned_audio(original_audio_path, kept_segments, output_path="cleaned_audio.mp3"):
+def create_cleaned_audio(original_audio_path: str, kept_segments: list[dict[str, float | str]], output_path: str = "cleaned_audio.mp3") -> str:
     """Extract and concatenate kept segments."""
     audio = AudioSegment.from_file(original_audio_path)
     
