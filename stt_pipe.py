@@ -6,6 +6,7 @@ from sklearn.metrics.pairwise import cosine_similarity
 import nltk
 from pydub import AudioSegment
 from pydub.utils import make_chunks  # Optional for finer control
+import json
 
 nltk.download('punkt', quiet=True)
 
@@ -21,7 +22,7 @@ def transcribe_with_timestamps(audio_path: str, model_size="base", device="cpu")
     print(f"Detected language: {info.language} (prob: {info.language_probability:.2f})")
     return list(segments), info.duration  # segments have .start, .end, .text, .words
 
-def sentences_with_timestamps(segments):
+def sentences_with_timestamps(segments) -> list[dict]:
     """Group into sentences while preserving approximate time ranges."""
     sentences = []
     current_text = []
@@ -42,7 +43,7 @@ def sentences_with_timestamps(segments):
                     "text": full_text,
                     "start": current_start,
                     "end": current_end,
-                    "segment": seg  # Keep reference if needed
+                    #"segment": seg  # Keep reference if needed
                 })
             current_text = []
             current_start = None
@@ -58,15 +59,35 @@ def sentences_with_timestamps(segments):
             })
     return sentences
 
+def transcribed_sentences_to_json(transcribed_sentences: list[dict]) -> list[dict]:
+    """Convert transcribed sentences to JSON-serializable dicts."""
+    return [
+        {
+            "text": s["text"].strip(),
+            "timestamps": [round(s["start"], 2), round(s["end"], 2)],
+        }
+        for s in transcribed_sentences
+    ]
+
 def get_embeddings(texts, model_name="all-MiniLM-L6-v2"):
     model = SentenceTransformer(model_name)
     return model.encode(texts, batch_size=32, show_progress_bar=True)
 
-def deduplicate_with_times(sentences, threshold=0.88):
+def deduplicate_with_times(sentences, threshold=0.88, remove_similar_sentences=False):
     """Remove similar sentences, keep timestamps of retained ones."""
     if not sentences:
         return []
+
+    if remove_similar_sentences == False:
+        print("Removing similar sentences is disabled")
+        return sentences
     
+    if len(sentences) == 0:
+        print("No sentences to deduplicate")
+        return []
+    
+
+    #remove_similar_sentences == True and sentences is not empty case:
     texts = [s["text"] for s in sentences]
     embeddings = get_embeddings(texts)
     sim_matrix = cosine_similarity(embeddings)
@@ -105,18 +126,30 @@ def create_cleaned_audio(original_audio_path, kept_segments, output_path="cleane
     return output_path
 
 # === Usage ===
-audio_file = "your_speech.mp3"
+if __name__ == "__main__":
+    audio_file = "data/feudalism.mp3"
+    #audio_file = "data/kennedy-nuclear-test.mp3"
+    sentence_similarity_threshold = 0.88
 
-segments, duration = transcribe_with_timestamps(audio_file, model_size="base", device="cuda")  # or "cpu"
-sentences = sentences_with_timestamps(segments)
+    segments, duration = transcribe_with_timestamps(audio_file, model_size="base", device="cuda")  # or "cpu"
+    sentences = sentences_with_timestamps(segments)
+    sentences_json = transcribed_sentences_to_json(sentences)
 
-print(f"Original: {len(sentences)} sentences, ~{duration:.1f}s")
+    print(sentences_json)
+    with open("data/sentences.json", "w", encoding="utf-8") as f:
+        json.dump(sentences_json, f, ensure_ascii=False, indent=4)
 
-kept = deduplicate_with_times(sentences, threshold=0.88)
+    print(f"Original: {len(sentences)} sentences, ~{duration:.1f}s")
 
-create_cleaned_audio(audio_file, kept, "cleaned_speech.mp3")
+    kept = deduplicate_with_times(
+        sentences, 
+        threshold=sentence_similarity_threshold, 
+        remove_similar_sentences=True
+        )
 
-# Optional: Save cleaned transcript with times
-with open("cleaned_transcript.txt", "w", encoding="utf-8") as f:
-    for s in kept:
-        f.write(f"[{s['start']:.2f}-{s['end']:.2f}s] {s['text']}\n")
+    create_cleaned_audio(audio_file, kept, "data/cleaned_speech.mp3")
+
+    # Optional: Save cleaned transcript with times
+    with open("data/cleaned_transcript.txt", "w", encoding="utf-8") as f:
+        for s in kept:
+            f.write(f"[{s['start']:.2f}-{s['end']:.2f}s] {s['text']}\n")
