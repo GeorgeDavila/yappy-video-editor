@@ -6,6 +6,7 @@ We'll use singular embedding models here to embed text/images/video into just on
 
 We dont use audio embeddings because this is intended for narration. If I'm narrating a documentary about animals and my dog barks in the background of an audio clip it could erroneously bias that segment towards the dog embeddings even if that particular segment is supposed to be about Zebras.
 
+## System Design 
 ```mermaid
 graph TD;
     %% mermaid chart docs: https://mermaid.js.org/syntax/flowchart.html
@@ -71,6 +72,13 @@ Write to some xml standard if we can. If no standard is wide enough just output 
 
 Write to json. E.g. {{'time', 'image', 'effect' .....}, {'time', 'audio', .....}}. From here we can write scripts to change to markdown language for other video editors or easy translation to straightup code for other preogrammatic editors. Keep audio/video/image assets in separate eleements even if they share exact same times - this allows easier portability to other editors and easier editing. 
 
+## Setup 
+
+```
+pip install faster-whisper sentence-transformers nltk pydub numpy scikit-learn
+# pydub needs FFmpeg installed on your system
+```
+
 ### Background Noise removal models
 
 https://huggingface.co/mlx-community/DeepFilterNet-mlx
@@ -107,3 +115,21 @@ Remove STOP words and k sentences before the STOP word for which there is a simi
 `cut_videos=False` Set to true to cutoff videos if a higher ranking embed starts. `min_visual_change_num_sentences` and `min_visual_change_time` will apply before this. 
 
 `loop_videos=false` set to true to make videos loop to fill out the interval alotted. If false itll just move on to the next visual 
+
+
+# Resources
+
+In this repo we'll use [feudalism.mp3](https://dn721507.ca.archive.org/0/items/historyofthemiddleages_2507_librivox/historyofthemiddleages_06_munro_128kb.mp3) from [internet archive](https://archive.org/details/historyofthemiddleages_2507_librivox)
+## Datasets
+* https://github.com/huggingface/dataspeech
+* https://huggingface.co/datasets/MLCommons/peoples_speech
+* https://github.com/thuhcsi/SpeechCraft
+* https://github.com/google-deepmind/librispeech-long
+* https://github.com/Yuan-ManX/ai-audio-datasets
+* https://huggingface.co/datasets/nvidia/LongAudio
+
+## Easy to use longform speeches
+Search engines tend to make mp3's hard to find. Some resources here. 
+* https://archive.org/details/audio
+* https://www.csun.edu/science/ref/audio/index.html
+* https://commons.wikimedia.org/wiki/Category:Audio_files_of_speeches
