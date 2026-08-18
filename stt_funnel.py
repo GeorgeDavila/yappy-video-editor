@@ -69,13 +69,23 @@ def transcribed_sentences_to_json(transcribed_sentences: list[dict[str, float | 
         for s in transcribed_sentences
     ]
 
-def get_embeddings(texts: list[str], model_name: str = "all-MiniLM-L6-v2") -> np.ndarray:
+def get_embeddings(texts: list[str], model_name: str) -> np.ndarray:
     model = SentenceTransformer(model_name)
     return model.encode(texts, batch_size=32, show_progress_bar=True)
 
-def deduplicate_with_times(sentences: list[dict[str, float | str]], threshold: float = 0.88, remove_similar_sentences: bool = False) -> list[dict[str, float | str]]:
+def deduplicate_with_times(
+    sentences: list[dict[str, float | str]], 
+    threshold: float = 0.88, 
+    remove_similar_sentences: bool = False, 
+    sentence_embedding_model_name: str = None
+    ) -> list[dict[str, float | str]]:
     """Remove similar sentences, keep timestamps of retained ones."""
+    if sentence_embedding_model_name is None:
+        print("Sentence embedding model name is not provided")
+        return sentences
+    
     if not sentences:
+        print("No sentences to deduplicate")
         return []
 
     if remove_similar_sentences == False:
@@ -89,7 +99,7 @@ def deduplicate_with_times(sentences: list[dict[str, float | str]], threshold: f
 
     #remove_similar_sentences == True and sentences is not empty case:
     texts = [s["text"] for s in sentences]
-    embeddings = get_embeddings(texts)
+    embeddings = get_embeddings(texts, model_name=sentence_embedding_model_name)
     sim_matrix = cosine_similarity(embeddings)
     
     to_keep = []
@@ -129,9 +139,15 @@ def create_cleaned_audio(original_audio_path: str, kept_segments: list[dict[str,
 if __name__ == "__main__":
     audio_file = "data/feudalism.mp3"
     #audio_file = "data/kennedy-nuclear-test.mp3"
-    sentence_similarity_threshold = 0.88
+    with open("settings.json", "r", encoding="utf-8") as f:
+        settings = json.load(f)
+    remove_similar_sentences = settings["stt_settings"]["remove_similar_sentences"]
+    sentence_similarity_threshold = settings["stt_settings"]["sentence_similarity_threshold"]
+    sentence_embedding_model_name = settings["stt_settings"]["sentence_embedding_model_name"]
+    model_size = settings["stt_settings"]["model_size"]
+    device = settings["stt_settings"]["device"]
 
-    segments, duration = transcribe_with_timestamps(audio_file, model_size="base", device="cuda")  # or "cpu"
+    segments, duration = transcribe_with_timestamps(audio_file, model_size=model_size, device=device)  # or "cpu"
     sentences = sentences_with_timestamps(segments)
     sentences_json = transcribed_sentences_to_json(sentences)
 
@@ -142,10 +158,11 @@ if __name__ == "__main__":
     print(f"Original: {len(sentences)} sentences, ~{duration:.1f}s")
 
     kept = deduplicate_with_times(
-        sentences, 
-        threshold=sentence_similarity_threshold, 
-        remove_similar_sentences=True
-        )
+        sentences,
+        threshold=sentence_similarity_threshold,
+        remove_similar_sentences=remove_similar_sentences,
+        sentence_embedding_model_name=sentence_embedding_model_name,
+    )
 
     create_cleaned_audio(audio_file, kept, "data/cleaned_speech.mp3")
 
