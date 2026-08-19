@@ -16,20 +16,24 @@ graph TD;
     AUDIO_PREPROCESSING-->STT_MODEL{"Speech to Text processing with timestamps"};
     STT_MODEL-->SENTENCE_DICTIONARY["Sentence/Timestamp Dictionary"];
     SENTENCE_DICTIONARY-->PARAM5;
-    SENTENCE_DICTIONARY-->EMBED_TEXT{"Text Embeddings Generated."};
+    PARAM5-->EMBED_TEXT{"Text Embeddings Generated."};
     
     IMAGE_UPLOAD(["Optional: Upload image assets"])-->VISUAL_FILE_DATA_EXTRACTION["Extract file name and textual metadata"];
     VIDEO_UPLOAD(["Optional: Upload video assets"])-->VISUAL_FILE_DATA_EXTRACTION;
     VISUAL_FILE_DATA_EXTRACTION-->VISUAL_DATA[("Visual Assets Data")];
-    VISUAL_DATA-->EMBED_IMAGE_VIDEO{"Image/Video Embeddings Generated. Generate text embeddings from Image/Video file names and file textual metadata."};
+    VISUAL_DATA-->EMBED_MULTIMODAL{"Sentence/Image/Video Embeddings Generated in MultiModal embedding. Generate text embeddings from Image/Video file names and/or file textual metadata."};
 
     EMBED_TEXT==Sentence/Timestamp/Text Embeds Dictionary==>AUDIO_SIMILARITY["Flag and remove overly similar neighboring sentences. Remove the first sentence as the latter is likely a correction."];
     AUDIO_SIMILARITY-->AUDIO_STOP["Remove STOP words and k sentences before the STOP word for which there is a similar sentence in range STOP_thresh after the STOP word."];
 
     %% AUDIO_STOP-->AUDIO_AGENT["Now that we have our core audio we can inject prompts into the pipeline to remove unwanted topics or whatever"];
     
-    AUDIO_STOP-->AUDIO_CLIPPING["Use the timestamps to create a separate audio clip for each selected sentence"];
-    AUDIO_CLIPPING-->EMBED_AUDIO{"Audio Embeddings Generated for each sentence clipping."};
+    SENTENCE_DICTIONARY e1@-.-> AUDIO_STOP;
+    SENTENCE_DICTIONARY -.-> AUDIO_CLIPPING;
+    AUDIO_STOP e2@--> AUDIO_CLIPPING["Use timestamps to create a separate audio clip for each selected sentence"];
+    AUDIO_CLIPPING-->PARAM6;
+    AUDIO_CLIPPING-.->AUDIO_POSTPROCESSING;
+    PARAM6-->EMBED_AUDIO{"Audio Embeddings Generated for each sentence clipping."};
     EMBED_AUDIO==Sentence/Timestamp/Text Embeds/Audio Embeds Dictionary==>AUDIO_ANALYSIS["Analyze audio embeddings for potential audio distortions, static, background noise, etc. Remove intolerable clips."]
 
     AUDIO_ANALYSIS-->AUDIO_POSTPROCESSING["Recombine audio clips into a single audio file, normalize audio. Recombine these with the initial facecam video, if one was included. After reconstruction is done, transform timestamps to fit their new places."];
@@ -39,7 +43,9 @@ graph TD;
     
     AUDIO_POSTPROCESSING-->MP3[("Post MP3 File")];
     AUDIO_POSTPROCESSING-->MP4[("Post MP4 File")];
-    AUDIO_POSTPROCESSING==Sentence/Embed dict with NEW Timestamps==>EMBED_MATCHING["Match sentence embeds to image/video. Maybe have a matching_threhold to encourage video use if the video is close enough. Create rankings according to Control Params & Rules"];
+    AUDIO_POSTPROCESSING==>EMBED_MULTIMODAL
+    
+    EMBED_MATCHING["Match sentence embeds to image/video. Maybe have a matching_threhold to encourage video use if the video is close enough. Create rankings according to Control Params & Rules"];
 
     MP3-.IF NO VISUALS were provided generate a blank image to make an mp4.->DONE;
     MP4-.if only visual is facecam.->DONE;
@@ -47,7 +53,7 @@ graph TD;
     MP3-->MOVIE_MAKING;
     MP4--put facecam in corner-->MOVIE_MAKING
 
-    EMBED_IMAGE_VIDEO==Visual filenames/Visual Embeds/Video Length/ File data textual embeds Dictionary==>EMBED_MATCHING;
+    EMBED_MULTIMODAL==Visual filenames/Visual Embeds/Video Length/ File data textual embeds Dictionary==>EMBED_MATCHING;
 
     EMBED_MATCHING-->MOVIE_MAKING["Combine the audio and visuals according to embed rankings and Control Params & Rules"];
 
@@ -58,6 +64,10 @@ graph TD;
     PARAM3(["Optional:Set generate_images==True"])-.->MOVIE_MAKING;
     PARAM4(["Optional:Set min_visual_change_time or min_visual_change_num_sentences. Minimum time/numberof sentences any visual has to stay on screen. This prevents the visuals from changing too fast. "])-.->MOVIE_MAKING;
     PARAM5(["Optional: Set remove_similar_sentences to TRUE"]);
+    PARAM6(["Optional: Set scrub_audio to true to use audio embeds to scrub bad audio"]);
+
+    e1@{ animate: true }
+    e2@{ animate: true }
 
     style FACECAM_UPLOAD stroke:red;
     style AUDIO_POSTPROCESSING stroke:blue;
