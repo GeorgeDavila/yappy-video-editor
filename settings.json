@@ -2,8 +2,8 @@
     "stt_settings": {
         "model_size": "base",
         "device": "cuda",
-        "remove_similar_sentences": false,
+        "remove_similar_sentences": true,
         "sentence_similarity_threshold": 0.88,
-        "sentence_embedding_model_name": "all-MiniLM-L6-v2"
+        "sentence_embed_model_id": "all-MiniLM-L6-v2"
     }
 }

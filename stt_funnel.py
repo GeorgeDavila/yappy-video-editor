@@ -1,12 +1,13 @@
 import re
 from faster_whisper import WhisperModel
-from sentence_transformers import SentenceTransformer
-import numpy as np
-from sklearn.metrics.pairwise import cosine_similarity
+#from sentence_transformers import SentenceTransformer
+#import numpy as np
+#from sklearn.metrics.pairwise import cosine_similarity
 import nltk
 from pydub import AudioSegment
 from pydub.utils import make_chunks  # Optional for finer control
 import json
+from embed_funnel import EmbedModel #, ModelType, ALLOWED_MODELS
 
 nltk.download('punkt', quiet=True)
 
@@ -69,18 +70,14 @@ def transcribed_sentences_to_json(transcribed_sentences: list[dict[str, float | 
         for s in transcribed_sentences
     ]
 
-def get_embeddings(texts: list[str], model_name: str) -> np.ndarray:
-    model = SentenceTransformer(model_name)
-    return model.encode(texts, batch_size=32, show_progress_bar=True)
-
 def deduplicate_with_times(
     sentences: list[dict[str, float | str]], 
     threshold: float = 0.88, 
     remove_similar_sentences: bool = False, 
-    sentence_embedding_model_name: str = None
+    sentence_embed_model_id: str = None
     ) -> list[dict[str, float | str]]:
     """Remove similar sentences, keep timestamps of retained ones."""
-    if sentence_embedding_model_name is None:
+    if sentence_embed_model_id is None:
         print("Sentence embedding model name is not provided")
         return sentences
     
@@ -99,8 +96,9 @@ def deduplicate_with_times(
 
     #remove_similar_sentences == True and sentences is not empty case:
     texts = [s["text"] for s in sentences]
-    embeddings = get_embeddings(texts, model_name=sentence_embedding_model_name)
-    sim_matrix = cosine_similarity(embeddings)
+    embed_model = EmbedModel(sentence_embed_model_id)
+    embeddings = embed_model.get_embeddings(texts)
+    sim_matrix = embed_model.get_similarity_matrix(embeddings)
     
     to_keep = []
     removed = set()
@@ -143,7 +141,7 @@ if __name__ == "__main__":
         settings = json.load(f)
     remove_similar_sentences = settings["stt_settings"]["remove_similar_sentences"]
     sentence_similarity_threshold = settings["stt_settings"]["sentence_similarity_threshold"]
-    sentence_embedding_model_name = settings["stt_settings"]["sentence_embedding_model_name"]
+    sentence_embed_model_id = settings["stt_settings"]["sentence_embed_model_id"]
     model_size = settings["stt_settings"]["model_size"]
     device = settings["stt_settings"]["device"]
 
@@ -161,7 +159,7 @@ if __name__ == "__main__":
         sentences,
         threshold=sentence_similarity_threshold,
         remove_similar_sentences=remove_similar_sentences,
-        sentence_embedding_model_name=sentence_embedding_model_name,
+        sentence_embed_model_id=sentence_embed_model_id,
     )
 
     create_cleaned_audio(audio_file, kept, "data/cleaned_speech.mp3")
