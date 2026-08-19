@@ -90,7 +90,7 @@ class EmbedModel:
         if self.model_types != [ModelType.AUDIO]:
             raise ValueError(
                 f"Model {self.embed_model_id} does not support audio data. "
-                f"Allowed models: {list(ALLOWED_MODELS)}"
+                #f"Audio models supported: {ALLOWED_MODELS.values()[ModelType.AUDIO.value]}"
             )
         
         queries = ["static audio", "bad audio", "white noise", "silence"]
@@ -109,8 +109,7 @@ class EmbedModel:
                     to_keep.append(audio_data[i])
             print(f"Kept {len(to_keep)} / {len(audio_data)} good audio data out of {len(audio_data)} total audio data")
             return to_keep
-    
-    
+
 if __name__ == "__main__":
     model = EmbedModel("Qwen3-VL-Embedding-2B")
     queries = ["A woman playing with her dog on a beach at sunset.", "Pet owner training dog outdoors near water.", "Woman surfing on waves during a sunny day.", "City skyline view from a high-rise building at night."]
