@@ -119,6 +119,26 @@ Remove STOP words and k sentences before the STOP word for which there is a simi
 
 # Resources
 
+## Models
+
+### Embedding Models
+
+* [Qwen3-VL-Embedding-8B](https://huggingface.co/Qwen/Qwen3-VL-Embedding-8B) - multimodal text/image/video embeds. Fairly high on current benchmarks. And qwen series has more community support.
+* [Qwen3-VL-Embedding-2B](https://huggingface.co/Qwen/Qwen3-VL-Embedding-2B) - Lighter Qwen model fairly close to 8B on benchmarks. 
+* [e5-omni-3B](https://huggingface.co/Haon-Chen/e5-omni-3B) - Multimodal embeds for text, images, audio, and video, adding Audio to pipeline. Built on Qwen2.5-Omni-3B so carries over lots of qwen pipeline. 
+* [e5-omni-7B](https://huggingface.co/Haon-Chen/e5-omni-7B) - heavier e5 variant
+* [all-MiniLM-L6-v2](https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2) - legacy but still good sentence embedding model
+
+Multimodal Embedding Benchmark: https://huggingface.co/spaces/TIGER-Lab/MMEB-Leaderboard
+
+### Speech-to-Text
+
+We use `pip install faster-whisper` for speech transcription
+
+
+
+## Data
+
 In this repo we'll use [feudalism.mp3](https://dn721507.ca.archive.org/0/items/historyofthemiddleages_2507_librivox/historyofthemiddleages_06_munro_128kb.mp3) from [internet archive](https://archive.org/details/historyofthemiddleages_2507_librivox)
 ## Datasets
 * https://github.com/huggingface/dataspeech
