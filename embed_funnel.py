@@ -61,7 +61,54 @@ class EmbedModel:
         if self.print_embeddings_shape:
             print(query_embeddings.shape, doc_embeddings.shape)
 
-        return cosine_similarity(query_embeddings, doc_embeddings)
+        return cosine_similarity(query_embeddings, doc_embeddings) #self.model.similarity(query_embeddings, doc_embeddings)
+    
+    def remove_similar_data(self, data2trim: list[str | dict], threshold: float = 0.88) -> list[str | dict]:
+        embeddings = self.get_embeddings(data2trim)
+        sim_matrix = self.get_similarity_matrix(embeddings)
+        to_keep = []
+        removed = set()
+        for i in range(len(embeddings)):
+            if i in removed:
+                continue
+            keep = True
+            for j in range(i + 1, len(embeddings)):
+                if sim_matrix[i][j] > threshold:
+                    removed.add(j)
+                    keep = False
+                    break
+            if keep:
+                to_keep.append(data2trim[i])
+        print(f"Kept {len(to_keep)} / {len(data2trim)} unique data")
+        return to_keep
+    
+    def remove_bad_audio_data(
+        self, 
+        audio_data: list[str],
+        bad_audio_similarity_threshold: float = 0.97
+    ) -> list[str]:
+        if self.model_types != [ModelType.AUDIO]:
+            raise ValueError(
+                f"Model {self.embed_model_id} does not support audio data. "
+                f"Allowed models: {list(ALLOWED_MODELS)}"
+            )
+        
+        queries = ["static audio", "bad audio", "white noise", "silence"]
+        similarities = self.sim_matrix_query_doc(queries, audio_data)
+        print(similarities)
+        print(f"Max similarity: {similarities.max()}")
+        print(f"bad_audio_similarity_threshold: {bad_audio_similarity_threshold}")
+        if np.any(similarities > bad_audio_similarity_threshold):
+            #checks if any value in the matrix is greater than the threshold - if none are, then all audio data is good
+            print(f"All audio data is good")
+            return audio_data
+        else:
+            to_keep = []
+            for i in range(len(audio_data)):
+                if similarities[:, i].max() < bad_audio_similarity_threshold:
+                    to_keep.append(audio_data[i])
+            print(f"Kept {len(to_keep)} / {len(audio_data)} good audio data out of {len(audio_data)} total audio data")
+            return to_keep
     
     
 if __name__ == "__main__":
