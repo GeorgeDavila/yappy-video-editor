@@ -7,7 +7,7 @@ import nltk
 from pydub import AudioSegment
 from pydub.utils import make_chunks  # Optional for finer control
 import json
-from embed_funnel import EmbedModel #, ModelType, ALLOWED_MODELS
+from embed_funnel import EmbedFunnel #, ModelType, ALLOWED_MODELS
 
 nltk.download('punkt', quiet=True)
 
@@ -96,7 +96,7 @@ def deduplicate_with_times(
 
     #remove_similar_sentences == True and sentences is not empty case:
     texts = [s["text"] for s in sentences]
-    embed_model = EmbedModel(sentence_embed_model_id)
+    embed_model = EmbedFunnel(sentence_embed_model_id)
     embeddings = embed_model.get_embeddings(texts)
     sim_matrix = embed_model.get_similarity_matrix(embeddings)
     

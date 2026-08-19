@@ -17,7 +17,7 @@ ALLOWED_MODELS = {
     "e5-omni-7B": [ModelType.TEXT, ModelType.AUDIO, ModelType.IMAGE, ModelType.VIDEO],
 }
 
-class EmbedModel:
+class EmbedFunnel:
     def __init__(self, embed_model_id: str):
         self.embed_model_id = embed_model_id
         self.model = SentenceTransformer(self.embed_model_id)
@@ -111,7 +111,7 @@ class EmbedModel:
             return to_keep
 
 if __name__ == "__main__":
-    model = EmbedModel("Qwen3-VL-Embedding-2B")
+    model = EmbedFunnel("Qwen3-VL-Embedding-2B")
     queries = ["A woman playing with her dog on a beach at sunset.", "Pet owner training dog outdoors near water.", "Woman surfing on waves during a sunny day.", "City skyline view from a high-rise building at night."]
     documents = ["A woman shares a joyful moment with her golden retriever on a sun-drenched beach at sunset, as the dog offers its paw in a heartwarming display of companionship and trust.", "https://qianwen-res.oss-cn-beijing.aliyuncs.com/Qwen-VL/assets/demo.jpeg", {"text": "A woman shares a joyful moment with her golden retriever on a sun-drenched beach at sunset, as the dog offers its paw in a heartwarming display of companionship and trust.", "image": "https://qianwen-res.oss-cn-beijing.aliyuncs.com/Qwen-VL/assets/demo.jpeg"}]
     similarities = model.sim_matrix_query_doc(queries, documents)
