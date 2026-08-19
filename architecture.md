@@ -13,8 +13,10 @@ graph TD;
 
     SPEECH_DATA-->AUDIO_PREPROCESSING{"Audio Preprocessing: remove long silences, normalize loudness if needed. May run Background noise removal (models fairly light like as low as 8mb) maybe include a bool for this as an option in case gives errors."};
     %% AUDIO_UPLOAD-->EMBED_AUDIO_INIT{"Audio Embeddings Generated."};
-    AUDIO_PREPROCESSING-->STT_MODEL{"Speech to Text processing with timestamps"}
-    STT_MODEL==Sentence/Timestamp Dictionary==>EMBED_TEXT{"Text Embeddings Generated."};
+    AUDIO_PREPROCESSING-->STT_MODEL{"Speech to Text processing with timestamps"};
+    STT_MODEL-->SENTENCE_DICTIONARY["Sentence/Timestamp Dictionary"];
+    SENTENCE_DICTIONARY-->PARAM5;
+    SENTENCE_DICTIONARY-->EMBED_TEXT{"Text Embeddings Generated."};
     
     IMAGE_UPLOAD(["Optional: Upload image assets"])-->VISUAL_FILE_DATA_EXTRACTION["Extract file name and textual metadata"];
     VIDEO_UPLOAD(["Optional: Upload video assets"])-->VISUAL_FILE_DATA_EXTRACTION;
@@ -55,6 +57,7 @@ graph TD;
     PARAM2(["Optional: Set STOP words"])-.->AUDIO_STOP;
     PARAM3(["Optional:Set generate_images==True"])-.->MOVIE_MAKING;
     PARAM4(["Optional:Set min_visual_change_time or min_visual_change_num_sentences. Minimum time/numberof sentences any visual has to stay on screen. This prevents the visuals from changing too fast. "])-.->MOVIE_MAKING;
+    PARAM5(["Optional: Set remove_similar_sentences to TRUE"]);
 
     style FACECAM_UPLOAD stroke:red;
     style AUDIO_POSTPROCESSING stroke:blue;
