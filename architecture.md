@@ -37,7 +37,7 @@ graph TD;
     AUDIO_STOP e2@--> AUDIO_CLIPPING["Use timestamps to create a separate audio clip for each selected sentence"];
     AUDIO_CLIPPING-->PARAM6;
     AUDIO_CLIPPING e3@-.-> AUDIO_POSTPROCESSING;
-    PARAM6-->EMBED_AUDIO{"Audio Embeddings Generated for each sentence clipping."};
+    PARAM6-->EMBED_AUDIO{"|e5-omni-3B| \n Audio Embeddings Generated for each sentence clipping."};
     EMBED_AUDIO==Sentence/Timestamp/Text Embeds/Audio Embeds Dictionary==>AUDIO_ANALYSIS["Analyze audio embeddings for potential audio distortions, static, background noise, etc. Remove intolerable clips."]
 
     AUDIO_ANALYSIS-->AUDIO_POSTPROCESSING["Recombine audio clips into a single audio file, normalize audio. Recombine these with the initial facecam video, if one was included. After reconstruction is done, transform timestamps to fit their new places."];
@@ -65,7 +65,7 @@ graph TD;
     
     PARAM1(["Optional: Set custom speech sentence similarity thresholds"])-.->AUDIO_SIMILARITY;
     PARAM2(["Optional: Set STOP words"])-.->AUDIO_STOP;
-    PARAM3(["Optional:Set generate_images==True"]) e8@-.-> GENERATE_IMAGES{"Generate images from pruned sentence dictionary (from text not embeds)"};
+    PARAM3(["Optional:Set generate_images==True"]) e8@-.-> GENERATE_IMAGES{"|Z-Image-Turbo| \n Generate images from pruned sentence dictionary (from text not embeds)"};
     PARAM4(["Optional:Set min_visual_change_time or min_visual_change_num_sentences. Minimum time/numberof sentences any visual has to stay on screen. This prevents the visuals from changing too fast. "])-.->MOVIE_MAKING;
     PARAM5(["Optional: Set remove_similar_sentences to TRUE"]);
     PARAM6(["Optional: Set scrub_audio to true to use audio embeds to scrub bad audio"]);
@@ -87,12 +87,12 @@ graph TD;
     e15@{ animate: true }
     e16@{ animate: true }
     e17@{ animate: true }
-    e18@{ animate: true }
-    e19@{ animate: true }
+    %% e18@{ animate: true }
+    %% e19@{ animate: true }
 
     style FACECAM_UPLOAD stroke:green;
     style AUDIO_UPLOAD stroke:green;
-    style EMBED_AUDIO_INIT stroke:red;
+    %% style EMBED_AUDIO_INIT stroke:red;
     style EMBED_TEXT stroke:red;
     style EMBED_MULTIMODAL stroke:red;
     style GENERATE_IMAGES stroke:red;
