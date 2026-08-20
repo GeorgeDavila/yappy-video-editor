@@ -1,12 +1,15 @@
 ## Architecture Diagram
 
-Animated line = default pathway. Red diamond = ML model inference. Green = possible starting points.
+Animated line = default pathway. Red diamond = ML model inference. Green = possible starting points. Yellow = external API. Pink = lightweight processing like NER. 
+
 ```mermaid
 graph TD;
     %% mermaid chart docs: https://mermaid.js.org/syntax/flowchart.html
     AUDIO_UPLOAD(["Upload Speech"]) e7@--> SPEECH_DATA[("User Speech MP3")]
 
-    SPEECH_DATA
+    SPEECH_DATA e22@-.->|Enhance Loop| PARAM8;
+    PARAM8 e23@-.-> RESTORATIVE_AUDIO_ENHANCEMENT{"|nineninesix/diamond-1.0| Restore/enhance audio"};
+    RESTORATIVE_AUDIO_ENHANCEMENT e24@-.-> SPEECH_DATA;
     
     %% doesn't need to be a facecam video, just a common example
     FACECAM_UPLOAD(["Upload Speech with video/facecam"])-->FACECAM_DATA["Facecam File"]
@@ -78,6 +81,7 @@ graph TD;
     PARAM5(["Optional: Set remove_similar_sentences to TRUE"]);
     PARAM6(["Optional: Set scrub_audio to true to use audio embeds to scrub bad audio"]);
     PARAM7(["Optional: Use SERP API image search."]) e19@-.-> SEARCH_IMAGE_API{"SERP IMAGE API"};
+    PARAM8(["Optional: Use restorative_audio_enhancement"]);
 
     e1@{ animate: true }
     e2@{ animate: true }
@@ -100,9 +104,9 @@ graph TD;
     e19@{ animate: true }
     e20@{ animate: true }
     e21@{ animate: true }
-    %% e22@{ animate: true }
-    %% e23@{ animate: true }
-    %% e24@{ animate: true }
+    e22@{ animate: true }
+    e23@{ animate: true }
+    e24@{ animate: true }
     %% e25@{ animate: true }
     %% e26@{ animate: true }
     %% e27@{ animate: true }
@@ -115,6 +119,7 @@ graph TD;
     style EMBED_TEXT stroke:red;
     style EMBED_MULTIMODAL stroke:red;
     style GENERATE_IMAGES stroke:red;
+    style RESTORATIVE_AUDIO_ENHANCEMENT stroke:red; 
     style SEARCH_IMAGE_API stroke:yellow;
     style NLP_FUNNEL_SEARCH_TERM_EXTRACTION stroke:pink;
     style AUDIO_POSTPROCESSING stroke:blue;
