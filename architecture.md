@@ -5,6 +5,8 @@ Animated line = default pathway. Red diamond = ML model inference. Green = possi
 graph TD;
     %% mermaid chart docs: https://mermaid.js.org/syntax/flowchart.html
     AUDIO_UPLOAD(["Upload Speech"]) e7@--> SPEECH_DATA[("User Speech MP3")]
+
+    SPEECH_DATA
     
     %% doesn't need to be a facecam video, just a common example
     FACECAM_UPLOAD(["Upload Speech with video/facecam"])-->FACECAM_DATA["Facecam File"]
@@ -28,7 +30,11 @@ graph TD;
     EMBED_TEXT==Sentence/Timestamp/Text Embeds Dictionary==>AUDIO_SIMILARITY["Flag and remove overly similar neighboring sentences. Remove the first sentence as the latter is likely a correction."];
     AUDIO_SIMILARITY-->AUDIO_STOP["Remove STOP words and k sentences before the STOP word for which there is a similar sentence in range STOP_thresh after the STOP word."];
 
-    AUDIO_STOP e9@==> PARAM3;
+    AUDIO_STOP e21@-.-> NLP_FUNNEL_SEARCH_TERM_EXTRACTION;
+    NLP_FUNNEL_SEARCH_TERM_EXTRACTION e9@-.-> PARAM3;
+    NLP_FUNNEL_SEARCH_TERM_EXTRACTION e18@-.-> PARAM7;
+
+    SEARCH_IMAGE_API e20@-.-> IMAGE_UPLOAD;
 
     %% AUDIO_STOP-->AUDIO_AGENT["Now that we have our core audio we can inject prompts into the pipeline to remove unwanted topics or whatever"];
     
@@ -62,6 +68,8 @@ graph TD;
     EMBED_MATCHING e12@--> MOVIE_MAKING["Combine the audio and visuals according to embed rankings and Control Params & Rules"];
 
     MOVIE_MAKING e13@--> DONE(("DONE!"));
+
+    NLP_FUNNEL_SEARCH_TERM_EXTRACTION{"Search Term Extracion using lighter nltk/spacy nlp methods."}
     
     PARAM1(["Optional: Set custom speech sentence similarity thresholds"])-.->AUDIO_SIMILARITY;
     PARAM2(["Optional: Set STOP words"])-.->AUDIO_STOP;
@@ -69,6 +77,7 @@ graph TD;
     PARAM4(["Optional:Set min_visual_change_time or min_visual_change_num_sentences. Minimum time/numberof sentences any visual has to stay on screen. This prevents the visuals from changing too fast. "])-.->MOVIE_MAKING;
     PARAM5(["Optional: Set remove_similar_sentences to TRUE"]);
     PARAM6(["Optional: Set scrub_audio to true to use audio embeds to scrub bad audio"]);
+    PARAM7(["Optional: Use SERP API image search."]) e19@-.-> SEARCH_IMAGE_API{"SERP IMAGE API"};
 
     e1@{ animate: true }
     e2@{ animate: true }
@@ -87,8 +96,18 @@ graph TD;
     e15@{ animate: true }
     e16@{ animate: true }
     e17@{ animate: true }
-    %% e18@{ animate: true }
-    %% e19@{ animate: true }
+    e18@{ animate: true }
+    e19@{ animate: true }
+    e20@{ animate: true }
+    e21@{ animate: true }
+    %% e22@{ animate: true }
+    %% e23@{ animate: true }
+    %% e24@{ animate: true }
+    %% e25@{ animate: true }
+    %% e26@{ animate: true }
+    %% e27@{ animate: true }
+    %% e28@{ animate: true }
+    %% e29@{ animate: true }
 
     style FACECAM_UPLOAD stroke:green;
     style AUDIO_UPLOAD stroke:green;
@@ -96,6 +115,8 @@ graph TD;
     style EMBED_TEXT stroke:red;
     style EMBED_MULTIMODAL stroke:red;
     style GENERATE_IMAGES stroke:red;
+    style SEARCH_IMAGE_API stroke:yellow;
+    style NLP_FUNNEL_SEARCH_TERM_EXTRACTION stroke:pink;
     style AUDIO_POSTPROCESSING stroke:blue;
 
 ```
