@@ -1,4 +1,5 @@
 {
+    "restorative_audio_enhancement": true,
     "stt_settings": {
         "model_size": "base",
         "device": "cuda",
