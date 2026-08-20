@@ -81,11 +81,13 @@ We use `pip install faster-whisper` for speech transcription
 
 ### Restorative Audio Enhancement
 
-We use [nineninesix/diamond-1.0](https://huggingface.co/nineninesix/diamond-1.0) for audio enhancement. The model purports "Diamond turns degraded audio into near-studio 44.1 kHz speech" and does seem to enhance audio from their examples. Although I personally don't have much of an ear for professional grad audio so you might want to split test yours.
+We use [nineninesix/diamond-1.0](https://huggingface.co/nineninesix/diamond-1.0) for audio enhancement. The model purports "Diamond turns degraded audio into near-studio 44.1 kHz speech" and does seem to enhance audio from their examples. Although I personally don't have much of an ear for professional grad audio so you might want to split test yours. 
 
 This is on by default. Set `"restorative_audio_enhancement": false` in `settings.json` to turn this off.
 
-We'll leave the original audio unadultered and simply append `_diamond_enhanced.mp3` to the audio file name if `"restorative_audio_enhancement": true` 
+We'll leave the original audio unadultered and simply append `_diamond_enhanced.mp3` to the audio file name if `"restorative_audio_enhancement": true` and likewise work with this file later in the pipeline if `"restorative_audio_enhancement": true`
+
+One of the smaller models ~670MB so no huge reason to leave it off by default. 
 
 
 ## Data
