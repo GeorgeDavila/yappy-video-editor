@@ -7,7 +7,7 @@ import nltk
 from pydub import AudioSegment
 from pydub.utils import make_chunks  # Optional for finer control
 import json
-from embed_funnel import EmbedFunnel #, ModelType, ALLOWED_MODELS
+from embed_funnel import EmbedFunnel #, ModelType, ALLOWED_EMBED_MODELS
 
 nltk.download('punkt', quiet=True)
 
