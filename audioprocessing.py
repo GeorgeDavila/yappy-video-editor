@@ -1,4 +1,5 @@
 from moviepy import *
+from pydub import AudioSegment
 
 class AudioProcessing:
     def __init__(self, audio_upload_path, audio_output_path):
@@ -29,3 +30,14 @@ class AudioProcessing:
         dict_audio_clips = {clip[0]: {"audio_clip": clip[1], "timestamps": clip[2]} for clip in audio_clips}
         return dict_audio_clips
     
+    def remove_silence(self, audio_clip, silence_thresh=-40, min_silence_len=500, buffer_ms=200):
+        audio_segment = AudioSegment.from_mp3(audio_clip)
+        audio_segment = audio_segment.strip_silence(silence_thresh=silence_thresh, min_silence_len=min_silence_len)
+        audio_segment.export(self.audio_output_path, format="mp3")
+        return audio_segment
+    
+    def normalize_audio(self, audio_clip):
+        audio_segment = AudioSegment.from_mp3(audio_clip)
+        audio_segment = audio_segment.normalize()
+        audio_segment.export(self.audio_output_path, format="mp3")
+        return audio_segment
