@@ -220,7 +220,9 @@ Some of the models we use here aren't supported by inference api services. APIs 
 ### API Services
 OpenRouter 
 
-I love [Replicate](https://replicate.com/explore) personally, it has a great variety of models including multimodal embeddings. Including [CLIP](https://replicate.com/krthr/clip-embeddings) and [Qwen3-8b](https://replicate.com/lucataco/qwen3-embedding-8b). But as you can see in these 2 examples, embedding api lacks consistent structure since lots are user or org updated. And it as fairly recently acquired as of making this project so IDK how consistent and long-lasting the service is gonna be - have to give that a bit of time.  
+[Replicate](https://replicate.com/explore) has a great variety of models including multimodal embeddings. Including [CLIP](https://replicate.com/krthr/clip-embeddings) and [Qwen3-8b](https://replicate.com/lucataco/qwen3-embedding-8b) and multimodal models like [imagebind](https://replicate.com/daanelson/imagebind). But as you can see in these examples, embedding api lacks consistent structure since apis are created by users or orgs, so be sure to adjust accordingly. I love replicate personally but it was fairly recently acquired as of making this project so IDK how consistent and long-lasting the service is gonna be - have to give that a bit of time. If project gets traction and replicate is fairly stable in a bit I might just make replicate APIs for all models I use here. 
+
+
 
 
 ## Data
