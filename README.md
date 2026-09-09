@@ -196,6 +196,7 @@ Remove STOP words and k sentences before the STOP word for which there is a simi
 * [e5-omni-3B](https://huggingface.co/Haon-Chen/e5-omni-3B) - Multimodal embeds for text, images, audio, and video, adding Audio to pipeline. Built on Qwen2.5-Omni-3B so carries over lots of qwen pipeline. 
 * [e5-omni-7B](https://huggingface.co/Haon-Chen/e5-omni-7B) - heavier e5 variant
 * [all-MiniLM-L6-v2](https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2) - legacy but still good sentence embedding model
+* [CLIP](https://huggingface.co/openai/clip-vit-base-patch32)
 
 Multimodal Embedding Benchmark: https://huggingface.co/spaces/TIGER-Lab/MMEB-Leaderboard
 
@@ -219,20 +220,44 @@ Some of the models we use here aren't supported by inference api services. APIs 
 
 ### Running on API
 - LLM
-    -
+    - [openai/gpt-5.6-luna-pro](https://openrouter.ai/openai/gpt-5.6-luna-pro)
 - Image
     - [Seedream-5-0-pro](https://openrouter.ai/bytedance-seed/seedream-5-0-pro)
     - [Krea-2-large](https://openrouter.ai/krea/krea-2-large)
     - [Google Nano Banana 2 / gemini-3.1-flash-image](https://openrouter.ai/google/gemini-3.1-flash-image)
+- Embeds
+    - [qwen/qwen3-embedding-8b](https://openrouter.ai/qwen/qwen3-embedding-8b)
+        - text/image
+
 
 ### Running Locally
 - Speech Enhancement
     - [nineninesix/diamond-1.0](https://huggingface.co/nineninesix/diamond-1.0)
         - This is a unique type of model with its own unique inference pipeline, and pretty small by modern standards, local inference is more practical in most cases
+- Embeds
+    - [CLIP](https://huggingface.co/openai/clip-vit-base-patch32)
+        - text/image 
+        - [more docs/usage](https://huggingface.co/docs/transformers/en/model_doc/clip)
+        - very performant on consumer devices plus i've used it more so easier to debug if needed 
+    - [all-MiniLM-L6-v2](https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2)
+        - sentence-oriented text embeddings
+        - fairly old embed model, still performant
+    - [Qwen3-VL-Embedding-2B](https://huggingface.co/Qwen/Qwen3-VL-Embedding-2B) 
+        - text/image
+        - Lighter Qwen model fairly close to 8B on benchmarks. 
+    - [e5-omni-3B](https://huggingface.co/Haon-Chen/e5-omni-3B)
+        - text/image/audio/video
+    - [e5-omni-7B](https://huggingface.co/Haon-Chen/e5-omni-7B)
+        - text/image/audio/video
 
+Prefer [all-MiniLM-L6-v2](https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2) for local text.
 
-### API Services
-OpenRouter 
+Prefer [CLIP](https://huggingface.co/openai/clip-vit-base-patch32) for local text/image.
+
+Prefer [e5-omni-3B](https://huggingface.co/Haon-Chen/e5-omni-3B) for local text/image/audio/video.
+
+### API Providers
+[OpenRouter](https://openrouter.ai/) - default where we have a matching model. Fairly industry standard. 
 
 [Replicate](https://replicate.com/explore) has a great variety of models including multimodal embeddings. Including [CLIP](https://replicate.com/krthr/clip-embeddings) and [Qwen3-8b](https://replicate.com/lucataco/qwen3-embedding-8b) and multimodal models like [imagebind](https://replicate.com/daanelson/imagebind). But as you can see in these examples, embedding api lacks consistent structure since apis are created by users or orgs, so be sure to adjust accordingly. I love replicate personally but it was fairly recently acquired as of making this project so IDK how consistent and long-lasting the service is gonna be - have to give that a bit of time. If project gets traction and replicate is fairly stable in a bit I might just make replicate APIs for all models I use here. 
 
