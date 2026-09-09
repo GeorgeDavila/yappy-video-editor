@@ -217,14 +217,15 @@ One of the smaller models ~670MB so no huge reason to leave it off by default.
 
 Some of the models we use here aren't supported by inference api services. APIs are iffy on audio/video/multimedia embedding models. And models like [nineninesix/diamond-1.0](https://huggingface.co/nineninesix/diamond-1.0) have pipelines that makes cloud inference impractical (but its fairly light so local inference is not too cumbersome). So we use a mixture of local/api inference. We'll default to doing small model and embedding inference locally. And shooting heavy LLM inference or large batch inference jobs to apis, defaulting to openrouter.
 
-On API:
+### Running on API
 - LLM
     -
 - Image
-    - [Seedream-5-0-pro](https://openrouter.ai/bytedance-seed/seedream-5-0-pro?output_modalities=image#playground)
-    - 
+    - [Seedream-5-0-pro](https://openrouter.ai/bytedance-seed/seedream-5-0-pro)
+    - [Krea-2-large](https://openrouter.ai/krea/krea-2-large)
+    - [Google Nano Banana 2 / gemini-3.1-flash-image](https://openrouter.ai/google/gemini-3.1-flash-image)
 
-Local:
+### Running Locally
 - Speech Enhancement
     - [nineninesix/diamond-1.0](https://huggingface.co/nineninesix/diamond-1.0)
         - This is a unique type of model with its own unique inference pipeline, and pretty small by modern standards, local inference is more practical in most cases
