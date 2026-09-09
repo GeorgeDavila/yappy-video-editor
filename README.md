@@ -221,6 +221,8 @@ Some of the models we use here aren't supported by inference api services. APIs 
 ### Running on API
 - LLM
     - [openai/gpt-5.6-luna-pro](https://openrouter.ai/openai/gpt-5.6-luna-pro)
+    - [qwen/qwen3.8-27b](https://openrouter.ai/qwen/qwen3.8-27b)
+    - [qwen/qwen3.8-max-0902](https://openrouter.ai/qwen/qwen3.8-max-0902)
 - Image
     - [Seedream-5-0-pro](https://openrouter.ai/bytedance-seed/seedream-5-0-pro)
     - [Krea-2-large](https://openrouter.ai/krea/krea-2-large)
