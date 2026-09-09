@@ -19,6 +19,21 @@ def encode_image_to_base64(image_path: str) -> str:
         finally:
             image_file.close()
 
+def encode_image_to_data_url(image_path: str) -> str:
+    #https://openrouter.ai/docs/guides/overview/multimodal/image-understanding
+    image_types_allowed = ["jpg", "jpeg", "png", "gif", "webp"]
+    image_extension = image_path.split(".")[-1]
+    if image_extension not in image_types_allowed:
+        raise ValueError(f"Image type not allowed: {image_extension}")
+    
+    if image_extension == "jpg":
+        image_type = "jpeg"
+    else:
+        image_type = image_extension
+
+    base64_image = encode_image_to_base64(image_path)
+    return f"data:image/{image_type};base64,{base64_image}"
+
 def VL_embed(text: str, image_path: str):
     response = requests.post(
     "https://openrouter.ai/api/v1/embeddings",
@@ -32,7 +47,7 @@ def VL_embed(text: str, image_path: str):
         {
             "content": [
             {"type": "text", "text": text},
-            {"type": "image_url", "image_url": {"url": encode_image_to_base64(image_path)}}
+            {"type": "image_url", "image_url": {"url": encode_image_to_data_url(image_path)}}
             ]
         }
         ],
@@ -59,7 +74,7 @@ def VL_embed_image(image_path: str):
         "input": [
         {
             "content": [
-            {"type": "image_url", "image_url": {"url": encode_image_to_base64(image_path)}}
+            {"type": "image_url", "image_url": {"url": encode_image_to_data_url(image_path)}}
             ]
         }
         ],
