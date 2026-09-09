@@ -220,11 +220,11 @@ Some of the models we use here aren't supported by inference api services. APIs 
 
 ### Running on API
 - LLM
-    - [openai/gpt-5.6-luna-pro](https://openrouter.ai/openai/gpt-5.6-luna-pro)
+    - [openai/gpt-5.6-luna-pro](https://openrouter.ai/openai/gpt-5.6-luna-pro) (default)
     - [qwen/qwen3.8-27b](https://openrouter.ai/qwen/qwen3.8-27b)
     - [qwen/qwen3.8-max-0902](https://openrouter.ai/qwen/qwen3.8-max-0902)
 - Image
-    - [Seedream-5-0-pro](https://openrouter.ai/bytedance-seed/seedream-5-0-pro)
+    - [Seedream-5-0-pro](https://openrouter.ai/bytedance-seed/seedream-5-0-pro) (default)
     - [Krea-2-large](https://openrouter.ai/krea/krea-2-large)
     - [Google Nano Banana 2 / gemini-3.1-flash-image](https://openrouter.ai/google/gemini-3.1-flash-image)
 - Embeds
@@ -237,11 +237,11 @@ Some of the models we use here aren't supported by inference api services. APIs 
     - [nineninesix/diamond-1.0](https://huggingface.co/nineninesix/diamond-1.0)
         - This is a unique type of model with its own unique inference pipeline, and pretty small by modern standards, local inference is more practical in most cases
 - Embeds
-    - [CLIP](https://huggingface.co/openai/clip-vit-base-patch32)
+    - [CLIP](https://huggingface.co/openai/clip-vit-base-patch32) (default)
         - text/image 
         - [more docs/usage](https://huggingface.co/docs/transformers/en/model_doc/clip)
         - very performant on consumer devices plus i've used it more so easier to debug if needed 
-    - [all-MiniLM-L6-v2](https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2)
+    - [all-MiniLM-L6-v2](https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2) (default)
         - sentence-oriented text embeddings
         - fairly old embed model, still performant
     - [Qwen3-VL-Embedding-2B](https://huggingface.co/Qwen/Qwen3-VL-Embedding-2B) 
