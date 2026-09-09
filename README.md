@@ -213,6 +213,14 @@ We'll leave the original audio unadultered and simply append `_diamond_enhanced.
 
 One of the smaller models ~670MB so no huge reason to leave it off by default. 
 
+## API vs Local Inference
+
+Some of the models we use here aren't supported by inference api services. APIs are iffy on audio/video/multimedia embedding models. And models like [nineninesix/diamond-1.0](https://huggingface.co/nineninesix/diamond-1.0) have pipelines that makes cloud inference impractical (but its fairly light so local inference is not too cumbersome). So we use a mixture of local/api inference. We'll default to doing small model and embedding inference locally. And shooting heavy LLM inference or large batch inference jobs to apis, defaulting to openrouter.
+
+### API Services
+OpenRouter 
+
+[Replicate](https://replicate.com/explore) has a great variety of models including multimodal embeddings. Including [CLIP](https://replicate.com/krthr/clip-embeddings) and [Qwen3-8b](https://replicate.com/lucataco/qwen3-embedding-8b). But as you can see in these 
 
 ## Data
 
