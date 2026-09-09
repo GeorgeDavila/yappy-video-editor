@@ -4,9 +4,6 @@ from audio_pipes.stt_funnel import *
 import json
 
 settings = json.load(open("settings.json"))
-remove_similar_sentences = 
-sentence_similarity_threshold = 
-sentence_embed_model_id = 
 
 #use audio
 audio_path = "data/feudalism.mp3"
