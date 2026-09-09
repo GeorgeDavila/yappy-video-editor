@@ -70,6 +70,12 @@ def transcribed_sentences_to_json(transcribed_sentences: list[dict[str, float | 
         for s in transcribed_sentences
     ]
 
+def write_transcribed_sentences_to_json(transcribed_sentences: list[dict[str, float | str]], output_path: str = "transcribed_sentences.json") -> None:
+    with open(output_path, "w", encoding="utf-8") as f:
+        json.dump(transcribed_sentences, f, ensure_ascii=False, indent=4)
+    print(f"Transcribed sentences saved to: {output_path}")
+    return output_path
+
 def deduplicate_with_times(
     sentences: list[dict[str, float | str]], 
     threshold: float = 0.88, 
@@ -150,8 +156,7 @@ if __name__ == "__main__":
     sentences_json = transcribed_sentences_to_json(sentences)
 
     print(sentences_json)
-    with open("data/sentences.json", "w", encoding="utf-8") as f:
-        json.dump(sentences_json, f, ensure_ascii=False, indent=4)
+    write_transcribed_sentences_to_json(sentences_json, "data/sentences.json")
 
     print(f"Original: {len(sentences)} sentences, ~{duration:.1f}s")
 
