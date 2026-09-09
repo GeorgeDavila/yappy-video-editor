@@ -9,7 +9,7 @@ class ModelType(Enum):
     VIDEO = "video"
     AUDIO = "audio"
 
-ALLOWED_MODELS = {
+ALLOWED_EMBED_MODELS = {
     "all-MiniLM-L6-v2": [ModelType.TEXT],
     "Qwen3-VL-Embedding-2B": [ModelType.TEXT, ModelType.IMAGE, ModelType.VIDEO],
     "Qwen3-VL-Embedding-8B": [ModelType.TEXT, ModelType.IMAGE, ModelType.VIDEO],
@@ -29,17 +29,17 @@ class EmbedFunnel:
             self.validate_model() # Validate model is allowed
 
     def validate_model(self) -> None:
-        if self.embed_model_id not in ALLOWED_MODELS:
+        if self.embed_model_id not in ALLOWED_EMBED_MODELS:
             raise ValueError(
                 f"Model {self.embed_model_id} is not allowed. "
-                f"Allowed models: {list(ALLOWED_MODELS)}"
+                f"Allowed models: {list(ALLOWED_EMBED_MODELS)}"
             )
-        self.model_types = ALLOWED_MODELS[self.embed_model_id] #this is a list of ModelType enums
+        self.model_types = ALLOWED_EMBED_MODELS[self.embed_model_id] #this is a list of ModelType enums
         print(f"Model {self.embed_model_id} supports the following data types: {self.model_types}")
         if len(self.model_types) == 0:
             raise ValueError(
                 f"Model {self.embed_model_id} does not support any data types. "
-                f"Allowed models: {list(ALLOWED_MODELS)}"
+                f"Allowed models: {list(ALLOWED_EMBED_MODELS)}"
             )
 
     def get_embeddings(self, data2embed: list[str | dict] | str | dict) -> np.ndarray:
@@ -90,7 +90,7 @@ class EmbedFunnel:
         if self.model_types != [ModelType.AUDIO]:
             raise ValueError(
                 f"Model {self.embed_model_id} does not support audio data. "
-                #f"Audio models supported: {ALLOWED_MODELS.values()[ModelType.AUDIO.value]}"
+                #f"Audio models supported: {ALLOWED_EMBED_MODELS.values()[ModelType.AUDIO.value]}"
             )
         
         queries = ["static audio", "bad audio", "white noise", "silence"]
